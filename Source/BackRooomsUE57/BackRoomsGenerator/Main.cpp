@@ -39,9 +39,11 @@ void ABackRoomGenerator::BeginPlay()
 
 void ABackRoomGenerator::GenerateBackrooms()
 {
-	// Clear any existing rooms
+	// Clear any existing rooms and pre-allocate memory
 	RoomUnits.Empty();
+	RoomUnits.Reserve(TotalRooms);
 	GeneratedRooms.Empty();
+	GeneratedRooms.Reserve(TotalRooms);
 	
 	// Get character location
 	FVector CharacterLocation = FVector::ZeroVector;
@@ -82,6 +84,12 @@ void ABackRoomGenerator::GenerateProceduralRooms()
 		TotalRooms, RoomRatio * 100.0f, HallwayRatio * 100.0f, StairRatio * 100.0f));
 	DebugLog(FString::Printf(TEXT("DEBUG: TotalRooms value is %d"), TotalRooms));
 	
+	// Pre-allocate memory to avoid reallocations during generation
+	RoomUnits.Empty();
+	RoomUnits.Reserve(TotalRooms);
+	GeneratedRooms.Empty();
+	GeneratedRooms.Reserve(TotalRooms);
+	
 	// Get character location for initial room
 	FVector CharacterLocation = FVector::ZeroVector;
 	if (UWorld* World = GetWorld())
@@ -104,6 +112,7 @@ void ABackRoomGenerator::GenerateProceduralRooms()
 	
 	// Main generation loop
 	TArray<int32> AvailableRooms; // Rooms with available connections
+	AvailableRooms.Reserve(TotalRooms); // Pre-allocate for worst case (all rooms available)
 	AvailableRooms.Add(0); // Start with initial room
 	
 	DebugLog(FString::Printf(TEXT("Starting main generation loop. Available rooms: %d"), AvailableRooms.Num()));
