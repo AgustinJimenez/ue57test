@@ -1,0 +1,53 @@
+# Unreal Engine .gitignore
+
+# Compiled binaries
+Binaries/
+!Binaries/*/
+Binaries/*/*.dll
+Binaries/*/*.dylib
+Binaries/*/*.so
+Binaries/*/*.app
+Binaries/*/*.exe
+Binaries/*/*.pdb
+Binaries/*/*.target
+
+# Build intermediates
+Intermediate/
+DerivedDataCache/
+
+# Cache and temporary files
+Saved/
+!Saved/Config/
+
+# Visual Studio / Xcode
+.vs/
+*.xcworkspace/
+*.xcodeproj/
+*.sln
+*.vcxproj*
+*.VC.db
+*.opensdf
+*.sdf
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Unreal Engine plugins
+Plugins/*/Binaries/
+Plugins/*/Intermediate/
+
+# Large content files - exclude most but keep essential
+Content/**/*.uasset
+Content/**/*.umap
+!Content/ThirdPerson/Blueprints/BackRoomsGeneratorBP.uasset
+!Content/ThirdPerson/Lvl_ThirdPerson.umap
+Content/**/*.png
+Content/**/*.jpg
+Content/**/*.wav
+Content/**/*.fbx
