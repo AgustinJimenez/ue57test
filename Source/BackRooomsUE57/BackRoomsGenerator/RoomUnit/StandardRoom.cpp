@@ -268,54 +268,94 @@ void UStandardRoom::GenerateIndividualWalls(TArray<TArray<FVector>>& WallVertice
 void UStandardRoom::GenerateFloor(TArray<FVector>& Vertices, TArray<int32>& Triangles, 
 	TArray<FVector>& Normals, TArray<FVector2D>& UVs)
 {
+	// EXPERIMENTAL: Generate step pattern floor instead of flat floor
 	float WidthCm = Width * 100.0f;
 	float LengthCm = Length * 100.0f;
-
-	// Floor vertices (at ground level)
-	Vertices.Add(FVector(0, 0, 0));              // Bottom-left
-	Vertices.Add(FVector(WidthCm, 0, 0));        // Bottom-right
-	Vertices.Add(FVector(WidthCm, LengthCm, 0)); // Top-right
-	Vertices.Add(FVector(0, LengthCm, 0));       // Top-left
-
-	// Floor triangles - DOUBLE-SIDED so visible from above and below
-	Triangles.Append({
-		// Upward-facing triangles (visible from above)
-		0, 1, 2, 0, 2, 3,
-		// Downward-facing triangles (visible from below) 
-		0, 2, 1, 0, 3, 2
-	});
-
-	// Floor normals (pointing up)
-	for (int32 i = 0; i < 4; i++)
-	{
-		Normals.Add(FVector::UpVector);
-	}
-
-	// Floor UVs
-	UVs.Add(FVector2D(0, 0));
-	UVs.Add(FVector2D(1, 0));
-	UVs.Add(FVector2D(1, 1));
-	UVs.Add(FVector2D(0, 1));
-
-	// UE_LOG(LogTemp, Warning, TEXT("StandardRoom: Generated floor with 4 vertices, 2 triangles"));
-	// UE_LOG(LogTemp, Warning, TEXT("🔧 FLOOR DEBUG: Local vertices relative to mesh component at %s"), *Position.ToString());
-	// UE_LOG(LogTemp, Warning, TEXT("🔧 Floor vertex 0 (local): %s → (world): %s"), 
-		// *FVector(0, 0, 0).ToString(), *(Position + FVector(0, 0, 0)).ToString());
-	// UE_LOG(LogTemp, Warning, TEXT("🔧 Floor vertex 2 (local): %s → (world): %s"), 
-		// *FVector(WidthCm, LengthCm, 0).ToString(), *(Position + FVector(WidthCm, LengthCm, 0)).ToString());
-	// UE_LOG(LogTemp, Warning, TEXT("🔧 Floor triangles: [%d,%d,%d] [%d,%d,%d]"), 
-		// Triangles[0], Triangles[1], Triangles[2], Triangles[3], Triangles[4], Triangles[5]);
 	
-	// Verify triangle winding order for upward-facing normals
-	FVector V0 = Vertices[Triangles[0]]; // First triangle vertex 0
-	FVector V1 = Vertices[Triangles[1]]; // First triangle vertex 1  
-	FVector V2 = Vertices[Triangles[2]]; // First triangle vertex 2
-	FVector Edge1 = V1 - V0;
-	FVector Edge2 = V2 - V0;
-	FVector CalculatedNormal = FVector::CrossProduct(Edge1, Edge2).GetSafeNormal();
-	// UE_LOG(LogTemp, Warning, TEXT("🔧 Triangle 1 calculated normal: %s (should be positive Z for upward-facing)"), 
-		// *CalculatedNormal.ToString());
-	// UE_LOG(LogTemp, Warning, TEXT("🔧 FIXED: Triangle winding changed from [0,2,1] to [0,1,2] for upward-facing floor"));
+	// Step configuration for floor pattern
+	float StepWidth = 60.0f;   // 60cm wide steps
+	float StepDepth = 60.0f;   // 60cm deep steps  
+	float StepHeight = 10.0f;  // 10cm high steps (low height for floor)
+	
+	// Calculate how many steps fit in each direction
+	int32 StepsX = FMath::Max(1, FMath::FloorToInt(WidthCm / StepWidth));
+	int32 StepsY = FMath::Max(1, FMath::FloorToInt(LengthCm / StepDepth));
+	
+	// Generate grid of steps across the floor
+	for (int32 Y = 0; Y < StepsY; Y++)
+	{
+		for (int32 X = 0; X < StepsX; X++)
+		{
+			int32 BaseVertexIndex = Vertices.Num();
+			
+			// Calculate step position
+			float StepX = X * StepWidth;
+			float StepY = Y * StepDepth;
+			FVector StepPosition = FVector(StepX, StepY, 0);
+			
+			// Create step box vertices (8 vertices per step)
+			TArray<FVector> StepVertices = {
+				// Bottom face
+				StepPosition + FVector(0, 0, 0),                           // 0: Bottom front-left
+				StepPosition + FVector(StepWidth, 0, 0),                   // 1: Bottom front-right
+				StepPosition + FVector(StepWidth, StepDepth, 0),           // 2: Bottom back-right
+				StepPosition + FVector(0, StepDepth, 0),                   // 3: Bottom back-left
+				
+				// Top face
+				StepPosition + FVector(0, 0, StepHeight),                  // 4: Top front-left
+				StepPosition + FVector(StepWidth, 0, StepHeight),          // 5: Top front-right
+				StepPosition + FVector(StepWidth, StepDepth, StepHeight),  // 6: Top back-right
+				StepPosition + FVector(0, StepDepth, StepHeight)           // 7: Top back-left
+			};
+			
+			// Add vertices
+			Vertices.Append(StepVertices);
+			
+			// Create triangles for step box (12 triangles = 6 faces * 2 triangles each)
+			TArray<int32> StepTriangles = {
+				// Bottom face (facing down)
+				BaseVertexIndex + 0, BaseVertexIndex + 2, BaseVertexIndex + 1,
+				BaseVertexIndex + 0, BaseVertexIndex + 3, BaseVertexIndex + 2,
+				
+				// Top face (facing up)
+				BaseVertexIndex + 4, BaseVertexIndex + 5, BaseVertexIndex + 6,
+				BaseVertexIndex + 4, BaseVertexIndex + 6, BaseVertexIndex + 7,
+				
+				// Front face
+				BaseVertexIndex + 0, BaseVertexIndex + 1, BaseVertexIndex + 5,
+				BaseVertexIndex + 0, BaseVertexIndex + 5, BaseVertexIndex + 4,
+				
+				// Back face
+				BaseVertexIndex + 2, BaseVertexIndex + 3, BaseVertexIndex + 7,
+				BaseVertexIndex + 2, BaseVertexIndex + 7, BaseVertexIndex + 6,
+				
+				// Left face
+				BaseVertexIndex + 3, BaseVertexIndex + 0, BaseVertexIndex + 4,
+				BaseVertexIndex + 3, BaseVertexIndex + 4, BaseVertexIndex + 7,
+				
+				// Right face
+				BaseVertexIndex + 1, BaseVertexIndex + 2, BaseVertexIndex + 6,
+				BaseVertexIndex + 1, BaseVertexIndex + 6, BaseVertexIndex + 5
+			};
+			
+			Triangles.Append(StepTriangles);
+			
+			// Add normals (simplified - using up vector)
+			for (int32 i = 0; i < 8; i++)
+			{
+				Normals.Add(FVector::UpVector);
+			}
+			
+			// Add UVs (simple mapping)
+			for (int32 i = 0; i < 8; i++)
+			{
+				UVs.Add(FVector2D(StepX / WidthCm, StepY / LengthCm));
+			}
+		}
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("StandardRoom: Generated step pattern floor with %d steps (%dx%d grid)"), 
+		StepsX * StepsY, StepsX, StepsY);
 }
 
 

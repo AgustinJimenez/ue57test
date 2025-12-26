@@ -1,7 +1,7 @@
 #include "StairsRoom.h"
 #include "Engine/Engine.h"
 #include "Components/TextRenderComponent.h"
-#include "Materials/MaterialInstanceDynamic.h"
+#include "DrawDebugHelpers.h"
 
 UStairsRoom::UStairsRoom() : Super()
 {
@@ -210,6 +210,9 @@ void UStairsRoom::CreateRoomUsingIndividualActors(AActor* Owner)
 	
 	// First create the basic room structure (foundation walls)
 	Super::CreateRoomUsingIndividualActors(Owner);
+	
+	// Create purple sphere indicator above stairs for easy identification
+	CreateStairIdentifierSphere(Owner);
 	
 	// Then add stair-specific geometry
 	// Note: For now, we'll use the standard mesh generation with stairs included
@@ -438,6 +441,37 @@ void UStairsRoom::CreateRoomNumberText(int32 RoomIndex, bool bShowNumbers)
 	// Position the text above the stairs for visibility
 	
 	UE_LOG(LogTemp, Warning, TEXT("StairsRoom: Created room number text for stairs %d"), RoomIndex);
+}
+
+void UStairsRoom::CreateStairIdentifierSphere(AActor* Owner)
+{
+	if (!Owner || !Owner->GetWorld())
+	{
+		UE_LOG(LogTemp, Error, TEXT("StairsRoom::CreateStairIdentifierSphere - Invalid Owner or World"));
+		return;
+	}
+
+	// Calculate sphere position above the center of the stairs
+	FVector SpherePosition = Position + FVector(
+		MetersToUnrealUnits(Width * 0.5f),   // Center X
+		MetersToUnrealUnits(Length * 0.5f),  // Center Y
+		MetersToUnrealUnits(Height + 0.5f)   // Above the room by 0.5m
+	);
+
+	// Draw persistent debug sphere (UE5 debug sphere)
+	DrawDebugSphere(
+		Owner->GetWorld(),
+		SpherePosition,
+		30.0f,  // 30cm radius
+		16,     // Segments
+		FColor::Purple,
+		true,   // Persistent (stays until manually removed)
+		-1.0f,  // Infinite duration
+		0,      // Depth priority
+		2.0f    // Thickness
+	);
+
+	UE_LOG(LogTemp, Warning, TEXT("StairsRoom: Created purple debug sphere identifier at %s"), *SpherePosition.ToString());
 }
 
 float UStairsRoom::MetersToUnrealUnits(float Meters) const

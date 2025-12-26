@@ -563,10 +563,10 @@ void ATestGenerator::CreateRowIrregularHolesWalls()
 		
 		// Wall 1: Small irregular hole - center left
 		if (i == 0) {
-			FWallHoleConfig SmallIrregular = FWallHoleConfig::CreateCustom(0.8f, 0.8f, 1.0f, 1.5f, TEXT("SmallIrregular"));
-			SmallIrregular.Shape = EHoleShape::Irregular;
+			FWallHoleConfig SmallIrregularLocal = FWallHoleConfig::CreateCustom(0.8f, 0.8f, 1.0f, 1.5f, TEXT("SmallIrregular"));
+			SmallIrregularLocal.Shape = EHoleShape::Irregular;
 			UWallUnit::CreateWallWithHole(GetWorld(), Position, FRotator::ZeroRotator, 
-		4.0f, 3.0f, 0.2f, IrregularWallColors[0], SmallIrregular);
+		4.0f, 3.0f, 0.2f, IrregularWallColors[0], SmallIrregularLocal);
 	DebugLog(TEXT("✅ Row 7: Small irregular hole (0.8m, center-left at 1.0m, 1.5m)"));
 	
 	// Wall 2: Medium irregular hole - bottom center

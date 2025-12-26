@@ -93,5 +93,6 @@ private:
 		TArray<FVector>& Normals, TArray<FVector2D>& UVs, TArray<FLinearColor>& Colors);
 	void UpdateRoomDimensionsForStairs();
 	void CreateRoomNumberText(int32 RoomIndex, bool bShowNumbers = true);
+	void CreateStairIdentifierSphere(AActor* Owner);
 	float MetersToUnrealUnits(float Meters) const;
 };

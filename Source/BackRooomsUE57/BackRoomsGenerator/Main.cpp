@@ -173,18 +173,18 @@ void ABackRoomGenerator::GenerateProceduralRooms()
 			ConnectionRetryCounter++;
 			
 			// TIME-BASED SAFETY CHECK
-			double CurrentTime = FPlatformTime::Seconds();
-			double ElapsedTime = CurrentTime - StartTime;
-			if (ElapsedTime > MAX_GENERATION_TIME)
+			double ConnectionCurrentTime = FPlatformTime::Seconds();
+			double ConnectionElapsedTime = ConnectionCurrentTime - StartTime;
+			if (ConnectionElapsedTime > MAX_GENERATION_TIME)
 			{
-				DebugLog(FString::Printf(TEXT("⏰ TIME LIMIT REACHED in CONNECTION LOOP: Stopping after %.1f seconds"), ElapsedTime));
+				DebugLog(FString::Printf(TEXT("⏰ TIME LIMIT REACHED in CONNECTION LOOP: Stopping after %.1f seconds"), ConnectionElapsedTime));
 				bEmergencyExit = true;
 				break;
 			}
 			
 			if (ConnectionRetryCounter % 50 == 0)
 			{
-				DebugLog(FString::Printf(TEXT("🔄 CONNECTION RETRY LOOP: %d/%d iterations (%.1fs elapsed)"), ConnectionRetryCounter, LOOP_LIMIT, ElapsedTime));
+				DebugLog(FString::Printf(TEXT("🔄 CONNECTION RETRY LOOP: %d/%d iterations (%.1fs elapsed)"), ConnectionRetryCounter, LOOP_LIMIT, ConnectionElapsedTime));
 			}
 			
 			if (ConnectionRetryCounter >= LOOP_LIMIT)
@@ -218,18 +218,18 @@ void ABackRoomGenerator::GenerateProceduralRooms()
 				PlacementAttemptCounter++;
 				
 				// TIME-BASED SAFETY CHECK
-				double CurrentTime = FPlatformTime::Seconds();
-				double ElapsedTime = CurrentTime - StartTime;
-				if (ElapsedTime > MAX_GENERATION_TIME)
+				double PlacementCurrentTime = FPlatformTime::Seconds();
+				double PlacementElapsedTime = PlacementCurrentTime - StartTime;
+				if (PlacementElapsedTime > MAX_GENERATION_TIME)
 				{
-					DebugLog(FString::Printf(TEXT("⏰ TIME LIMIT REACHED in PLACEMENT LOOP: Stopping after %.1f seconds"), ElapsedTime));
+					DebugLog(FString::Printf(TEXT("⏰ TIME LIMIT REACHED in PLACEMENT LOOP: Stopping after %.1f seconds"), PlacementElapsedTime));
 					bEmergencyExit = true;
 					break;
 				}
 				
 				if (PlacementAttemptCounter % 25 == 0)
 				{
-					DebugLog(FString::Printf(TEXT("🔄 PLACEMENT ATTEMPT LOOP: %d/%d iterations (%.1fs elapsed)"), PlacementAttemptCounter, LOOP_LIMIT, ElapsedTime));
+					DebugLog(FString::Printf(TEXT("🔄 PLACEMENT ATTEMPT LOOP: %d/%d iterations (%.1fs elapsed)"), PlacementAttemptCounter, LOOP_LIMIT, PlacementElapsedTime));
 				}
 				
 				if (PlacementAttemptCounter >= LOOP_LIMIT)
