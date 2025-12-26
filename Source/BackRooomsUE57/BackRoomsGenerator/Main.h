@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "Materials/MaterialInterface.h"
 #include "Types.h"
+#include "GenerationConfig.h"
 #include "Main.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogBackRoomGenerator, Log, All);
@@ -19,31 +20,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	// Configuration
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation", meta = (ClampMin = "1", ClampMax = "200"))
-	int32 TotalRooms = 100; // 100 rooms for large scale backrooms generation
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
-	float RoomRatio = 0.30f; // 30% rooms
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
-	float HallwayRatio = 0.30f; // 30% hallways
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
-	float StairRatio = 0.40f; // 40% stairs
-
-	// Room Labels
+	// Configuration - Centralized settings
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation")
-	bool bShowRoomNumbers = true; // Enable/disable room number labels
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation", meta = (ClampMin = "1", ClampMax = "10"))
-	int32 MaxAttemptsPerConnection = 5;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation", meta = (ClampMin = "1", ClampMax = "20"))
-	int32 MaxConnectionRetries = 10;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation", meta = (ClampMin = "100.0", Units = "cm"))
-	float GridUnitSize = 400.0f;
+	FBackroomGenerationConfig Config;
 
 	// Materials
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Materials")

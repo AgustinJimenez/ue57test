@@ -18,14 +18,12 @@ ABackRoomGenerator::ABackRoomGenerator()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	
-	// Basic settings - 5 rooms for collision debugging
-	TotalRooms = 10; // Generate 5 rooms for testing
-	RoomRatio = 0.30f; // 30% rooms 
-	HallwayRatio = 0.30f; // 30% hallways 
-	StairRatio = 0.40f; // 40% stairs (ENABLED)
-	MaxAttemptsPerConnection = 5;
-	MaxConnectionRetries = 10;
-	GridUnitSize = 400.0f;
+	// Initialize with default configuration values
+	// All settings now centralized in Config struct
+	Config = FBackroomGenerationConfig();
+	
+	// Override default for testing (can be changed in Blueprint/Editor)
+	Config.TotalRooms = 10; // Start small for testing
 }
 
 void ABackRoomGenerator::BeginPlay()
@@ -41,9 +39,9 @@ void ABackRoomGenerator::GenerateBackrooms()
 {
 	// Clear any existing rooms and pre-allocate memory
 	RoomUnits.Empty();
-	RoomUnits.Reserve(TotalRooms);
+	RoomUnits.Reserve(Config.TotalRooms);
 	GeneratedRooms.Empty();
-	GeneratedRooms.Reserve(TotalRooms);
+	GeneratedRooms.Reserve(Config.TotalRooms);
 	
 	// Get character location
 	FVector CharacterLocation = FVector::ZeroVector;
@@ -81,14 +79,14 @@ void ABackRoomGenerator::GenerateProceduralRooms()
 	DebugLog(TEXT("🚀 STARTING BACKROOMS GENERATION"));
 	DebugLog(TEXT("================================================================================"));
 	DebugLog(FString::Printf(TEXT("=== Generating %d units: %.1f%% rooms, %.1f%% hallways, %.1f%% stairs ==="), 
-		TotalRooms, RoomRatio * 100.0f, HallwayRatio * 100.0f, StairRatio * 100.0f));
-	DebugLog(FString::Printf(TEXT("DEBUG: TotalRooms value is %d"), TotalRooms));
+		Config.TotalRooms, Config.RoomRatio * 100.0f, Config.HallwayRatio * 100.0f, Config.StairRatio * 100.0f));
+	DebugLog(FString::Printf(TEXT("DEBUG: TotalRooms value is %d"), Config.TotalRooms));
 	
 	// Pre-allocate memory to avoid reallocations during generation
 	RoomUnits.Empty();
-	RoomUnits.Reserve(TotalRooms);
+	RoomUnits.Reserve(Config.TotalRooms);
 	GeneratedRooms.Empty();
-	GeneratedRooms.Reserve(TotalRooms);
+	GeneratedRooms.Reserve(Config.TotalRooms);
 	
 	// Get character location for initial room
 	FVector CharacterLocation = FVector::ZeroVector;
@@ -112,7 +110,7 @@ void ABackRoomGenerator::GenerateProceduralRooms()
 	
 	// Main generation loop
 	TArray<int32> AvailableRooms; // Rooms with available connections
-	AvailableRooms.Reserve(TotalRooms); // Pre-allocate for worst case (all rooms available)
+	AvailableRooms.Reserve(Config.TotalRooms); // Pre-allocate for worst case (all rooms available)
 	AvailableRooms.Add(0); // Start with initial room
 	
 	DebugLog(FString::Printf(TEXT("Starting main generation loop. Available rooms: %d"), AvailableRooms.Num()));
@@ -121,15 +119,15 @@ void ABackRoomGenerator::GenerateProceduralRooms()
 	int32 MainLoopCounter = 0;
 	int32 ConnectionRetryCounter = 0;  
 	int32 PlacementAttemptCounter = 0;
-	const int32 LOOP_LIMIT = 2000;
+	const int32 LOOP_LIMIT = Config.MaxSafetyIterations;
 	bool bEmergencyExit = false; // Flag to break out of all nested loops
 	
 	// TIME-BASED SAFETY: Stop after 20 seconds regardless of what's happening
 	double StartTime = FPlatformTime::Seconds();
-	const double MAX_GENERATION_TIME = 20.0; // 20 seconds max
+	const double MAX_GENERATION_TIME = Config.MaxGenerationTime;
 	
 	// Generate rooms up to the configured limit  
-	for (int32 RoomIndex = 1; RoomIndex < TotalRooms && MainLoopCounter < LOOP_LIMIT && AvailableRooms.Num() > 0 && !bEmergencyExit; RoomIndex++)
+	for (int32 RoomIndex = 1; RoomIndex < Config.TotalRooms && MainLoopCounter < LOOP_LIMIT && AvailableRooms.Num() > 0 && !bEmergencyExit; RoomIndex++)
 	{
 		MainLoopCounter++;
 		
@@ -158,7 +156,7 @@ void ABackRoomGenerator::GenerateProceduralRooms()
 		DebugLog(TEXT(""));
 		DebugLog(TEXT("================================================================================"));
 		DebugLog(FString::Printf(TEXT("🏗️  GENERATING ROOM %d/%d (MainLoop: %d/%d)"), 
-			RoomIndex, TotalRooms-1, MainLoopCounter, LOOP_LIMIT));
+			RoomIndex, Config.TotalRooms-1, MainLoopCounter, LOOP_LIMIT));
 		DebugLog(TEXT("================================================================================"));
 		
 		bool bRoomPlaced = false;
@@ -167,7 +165,7 @@ void ABackRoomGenerator::GenerateProceduralRooms()
 		DebugLog(FString::Printf(TEXT("Available rooms for connection: %d"), AvailableRooms.Num()));
 		
 		// Try to place a new room
-		while (!bRoomPlaced && ConnectionRetries < MaxConnectionRetries && AvailableRooms.Num() > 0 && !bEmergencyExit)
+		while (!bRoomPlaced && ConnectionRetries < Config.MaxConnectionRetries && AvailableRooms.Num() > 0 && !bEmergencyExit)
 		{
 			ConnectionRetries++;
 			ConnectionRetryCounter++;
@@ -213,7 +211,7 @@ void ABackRoomGenerator::GenerateProceduralRooms()
 			DebugLog(FString::Printf(TEXT("Selected connection index %d"), ConnectionIndex));
 			
 			// Try different room sizes for this connection
-			for (int32 Attempt = 0; Attempt < MaxAttemptsPerConnection && !bEmergencyExit; Attempt++)
+			for (int32 Attempt = 0; Attempt < Config.MaxAttemptsPerConnection && !bEmergencyExit; Attempt++)
 			{
 				PlacementAttemptCounter++;
 				
@@ -239,7 +237,7 @@ void ABackRoomGenerator::GenerateProceduralRooms()
 					break;
 				}
 				
-				DebugLog(FString::Printf(TEXT("Placement attempt %d/%d for connection %d"), Attempt+1, MaxAttemptsPerConnection, ConnectionIndex));
+				DebugLog(FString::Printf(TEXT("Placement attempt %d/%d for connection %d"), Attempt+1, Config.MaxAttemptsPerConnection, ConnectionIndex));
 				
 				// Determine room category based on three-way ratio
 				// CONSTRAINT: No stairs after stairs
@@ -251,7 +249,7 @@ void ABackRoomGenerator::GenerateProceduralRooms()
 				if (bSourceIsStair)
 				{
 					// If source is stair, can only place Room or Hallway (no consecutive stairs)
-					float AdjustedRoomRatio = RoomRatio / (RoomRatio + HallwayRatio); // Normalize room/hallway ratio
+					float AdjustedRoomRatio = Config.RoomRatio / (Config.RoomRatio + Config.HallwayRatio); // Normalize room/hallway ratio
 					if (RandomValue < AdjustedRoomRatio)
 					{
 						Category = ERoomCategory::Room;
@@ -266,12 +264,12 @@ void ABackRoomGenerator::GenerateProceduralRooms()
 				else
 				{
 					// Normal three-way distribution when source is not a stair
-					if (RandomValue < RoomRatio)
+					if (RandomValue < Config.RoomRatio)
 					{
 						Category = ERoomCategory::Room;
 						CategoryStr = TEXT("Room");
 					}
-					else if (RandomValue < RoomRatio + HallwayRatio)
+					else if (RandomValue < Config.RoomRatio + Config.HallwayRatio)
 					{
 						Category = ERoomCategory::Hallway;
 						CategoryStr = TEXT("Hallway");
@@ -325,7 +323,7 @@ void ABackRoomGenerator::GenerateProceduralRooms()
 		
 		if (!bRoomPlaced)
 		{
-			DebugLog(FString::Printf(TEXT("❌ ROOM %d FAILED: Could not place after %d retries"), RoomIndex, MaxConnectionRetries));
+			DebugLog(FString::Printf(TEXT("❌ ROOM %d FAILED: Could not place after %d retries"), RoomIndex, Config.MaxConnectionRetries));
 			
 			// Clean up available rooms - remove rooms with no connections
 			for (int32 i = AvailableRooms.Num() - 1; i >= 0; i--)
@@ -370,7 +368,7 @@ void ABackRoomGenerator::GenerateProceduralRooms()
 		DebugLog(TEXT("❌ INFINITE LOOP DETECTED: Generation stopped due to loop limit!"));
 	}
 	
-	DebugLog(FString::Printf(TEXT("Procedural generation complete: %d rooms created (Target: %d)"), GeneratedRooms.Num(), TotalRooms));
+	DebugLog(FString::Printf(TEXT("Procedural generation complete: %d rooms created (Target: %d)"), GeneratedRooms.Num(), Config.TotalRooms));
 	
 	// LOOP COUNTER SUMMARY REPORT
 	double TotalTime = FPlatformTime::Seconds() - StartTime;
@@ -402,9 +400,9 @@ void ABackRoomGenerator::GenerateProceduralRooms()
 	DebugLog(TEXT(""));
 	
 	// Ensure we don't have more rooms than intended
-	if (GeneratedRooms.Num() > TotalRooms)
+	if (GeneratedRooms.Num() > Config.TotalRooms)
 	{
-		DebugLog(FString::Printf(TEXT("WARNING: Generated %d rooms but target was %d!"), GeneratedRooms.Num(), TotalRooms));
+		DebugLog(FString::Printf(TEXT("WARNING: Generated %d rooms but target was %d!"), GeneratedRooms.Num(), Config.TotalRooms));
 	}
 }
 
@@ -437,16 +435,16 @@ FRoomData ABackRoomGenerator::CreateInitialRoom(const FVector& CharacterLocation
 {
 	FRoomData InitialRoom;
 	InitialRoom.Category = ERoomCategory::Room;
-	InitialRoom.Width = 5.0f;  // 5x5 meter starting room
-	InitialRoom.Length = 5.0f;
-	InitialRoom.Height = 3.0f;
+	InitialRoom.Width = BackroomConstants::INITIAL_ROOM_SIZE;  // Configurable starting room size
+	InitialRoom.Length = BackroomConstants::INITIAL_ROOM_SIZE;
+	InitialRoom.Height = Config.StandardRoomHeight;
 	InitialRoom.RoomIndex = 0;
 	
 	// Position room so character stands on the floor surface  
 	InitialRoom.Position = FVector(
 		CharacterLocation.X - MetersToUnrealUnits(InitialRoom.Width) * 0.5f,
 		CharacterLocation.Y - MetersToUnrealUnits(InitialRoom.Length) * 0.5f,
-		CharacterLocation.Z - MetersToUnrealUnits(0.5f) // Room floor 0.5m below character
+		CharacterLocation.Z - MetersToUnrealUnits(BackroomConstants::INITIAL_ROOM_FLOOR_OFFSET) // Room floor offset below character
 	);
 	
 	// Create the actual room unit using new architecture
@@ -614,7 +612,7 @@ bool ABackRoomGenerator::TryPlaceRoom(const FRoomData& SourceRoom, int32 Connect
 	{
 		// Create room unit with unified method (includes numbering and creation)
 		UStandardRoom* RoomUnit = NewObject<UStandardRoom>(this);
-		bool bRoomCreated = RoomUnit->CreateFromRoomData(NewRoom, this, bShowRoomNumbers);
+		bool bRoomCreated = RoomUnit->CreateFromRoomData(NewRoom, this, Config.bShowRoomNumbers);
 		
 		if (bRoomCreated)
 		{
@@ -636,7 +634,7 @@ bool ABackRoomGenerator::CheckRoomCollision(const FRoomData& TestRoom) const
 	FBox TestBounds = TestRoom.GetBoundingBox();
 	
 	// Add minimal buffer to prevent rooms from touching
-	float BufferSize = MetersToUnrealUnits(0.02f); // 2cm buffer for more room placement opportunities
+	float BufferSize = MetersToUnrealUnits(Config.CollisionBuffer); // Configurable buffer for room placement
 	TestBounds = TestBounds.ExpandBy(BufferSize);
 	
 	for (int32 i = 0; i < GeneratedRooms.Num(); i++)
@@ -678,7 +676,7 @@ bool ABackRoomGenerator::CheckRoomCollisionExcluding(const FRoomData& TestRoom, 
 		TestRoom.RoomIndex, *TestBounds.Min.ToString(), *TestBounds.Max.ToString()));
 	
 	// Add minimal buffer to prevent rooms from touching  
-	float BufferSize = MetersToUnrealUnits(0.02f); // 2cm buffer for more room placement opportunities
+	float BufferSize = MetersToUnrealUnits(Config.CollisionBuffer); // Configurable buffer for room placement
 	TestBounds = TestBounds.ExpandBy(BufferSize);
 	
 	DebugLog(FString::Printf(TEXT("[DEBUG] BUFFERED: Room %d buffered bounds Min=%s Max=%s"), 
@@ -879,7 +877,7 @@ FVector ABackRoomGenerator::CalculateConnectionPosition(const FRoomData& SourceR
 	}
 	
 	// Wall thickness - rooms have 20cm thick walls
-	float WallThickness = MetersToUnrealUnits(0.2f); // 20cm = 0.2m
+	float WallThickness = MetersToUnrealUnits(Config.WallThickness); // Configurable wall thickness
 	
 	// Add a minimal gap to prevent wall z-fighting 
 	float AntiFlickerGap = MetersToUnrealUnits(0.01f); // 1cm gap - minimal to prevent z-fighting
@@ -1287,7 +1285,7 @@ void ABackRoomGenerator::CreateIdentifierSpheres(UStandardRoom* Room)
 	// Create spheres
 	for (int32 i = 0; i < SphereConfigs.Num(); i++)
 	{
-		const SphereConfig& Config = SphereConfigs[i];
+		const SphereConfig& SphereConf = SphereConfigs[i];
 		
 		// Create sphere component
 		UStaticMeshComponent* SphereComponent = NewObject<UStaticMeshComponent>(this, 
@@ -1296,7 +1294,7 @@ void ABackRoomGenerator::CreateIdentifierSpheres(UStandardRoom* Room)
 		SphereComponent->SetStaticMesh(SphereMesh);
 		SphereComponent->SetupAttachment(GetRootComponent());
 		SphereComponent->RegisterComponent();
-		SphereComponent->SetWorldLocation(Config.Position);
+		SphereComponent->SetWorldLocation(SphereConf.Position);
 		SphereComponent->SetWorldScale3D(FVector(0.5f)); // 50cm diameter spheres
 		
 		// Create dynamic material with primary color
@@ -1308,13 +1306,13 @@ void ABackRoomGenerator::CreateIdentifierSpheres(UStandardRoom* Room)
 			UMaterialInstanceDynamic* DynamicMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, this);
 			if (DynamicMaterial)
 			{
-				DynamicMaterial->SetVectorParameterValue(TEXT("Color"), Config.Color);
+				DynamicMaterial->SetVectorParameterValue(TEXT("Color"), SphereConf.Color);
 				SphereComponent->SetMaterial(0, DynamicMaterial);
 			}
 		}
 		
 		DebugLog(FString::Printf(TEXT("Created identifier sphere for %s at %s"), 
-			*Config.Description, *Config.Position.ToString()));
+			*SphereConf.Description, *SphereConf.Position.ToString()));
 	}
 }
 
