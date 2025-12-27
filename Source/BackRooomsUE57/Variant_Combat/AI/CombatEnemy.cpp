@@ -1,16 +1,16 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-
 #include "CombatEnemy.h"
-#include "Components/CapsuleComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
+
+#include "Animation/AnimInstance.h"
 #include "CombatAIController.h"
+#include "CombatLifeBar.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Engine/DamageEvents.h"
-#include "CombatLifeBar.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "TimerManager.h"
-#include "Components/SkeletalMeshComponent.h"
-#include "Animation/AnimInstance.h"
 
 ACombatEnemy::ACombatEnemy()
 {
@@ -54,7 +54,15 @@ void ACombatEnemy::DoAIComboAttack()
 	bIsAttacking = true;
 
 	// choose how many times we're going to attack
-	TargetComboCount = FMath::RandRange(1, ComboSectionNames.Num() - 1);
+	// Fix: Add bounds checking to prevent array access issues
+	if (ComboSectionNames.Num() > 1)
+	{
+		TargetComboCount = FMath::RandRange(1, ComboSectionNames.Num() - 1);
+	}
+	else
+	{
+		TargetComboCount = 1; // Safe fallback
+	}
 
 	// reset the attack counter
 	CurrentComboAttack = 0;
@@ -62,7 +70,8 @@ void ACombatEnemy::DoAIComboAttack()
 	// play the attack montage
 	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 	{
-		const float MontageLength = AnimInstance->Montage_Play(ComboAttackMontage, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, true);
+		const float MontageLength =
+		    AnimInstance->Montage_Play(ComboAttackMontage, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, true);
 
 		// subscribe to montage completed and interrupted events
 		if (MontageLength > 0.0f)
@@ -93,7 +102,8 @@ void ACombatEnemy::DoAIChargedAttack()
 	// play the attack montage
 	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 	{
-		const float MontageLength = AnimInstance->Montage_Play(ChargedAttackMontage, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, true);
+		const float MontageLength =
+		    AnimInstance->Montage_Play(ChargedAttackMontage, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, true);
 
 		// subscribe to montage completed and interrupted events
 		if (MontageLength > 0.0f)
@@ -144,7 +154,8 @@ void ACombatEnemy::DoAttackTrace(FName DamageSourceBone)
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
 
-	if (GetWorld()->SweepMultiByObjectType(OutHits, TraceStart, TraceEnd, FQuat::Identity, ObjectParams, CollisionShape, QueryParams))
+	if (GetWorld()->SweepMultiByObjectType(
+	        OutHits, TraceStart, TraceEnd, FQuat::Identity, ObjectParams, CollisionShape, QueryParams))
 	{
 		// iterate over each object hit
 		for (const FHitResult& CurrentHit : OutHits)
@@ -158,11 +169,11 @@ void ACombatEnemy::DoAttackTrace(FName DamageSourceBone)
 				if (Damageable)
 				{
 					// knock upwards and away from the impact normal
-					const FVector Impulse = (CurrentHit.ImpactNormal * -MeleeKnockbackImpulse) + (FVector::UpVector * MeleeLaunchImpulse);
+					const FVector Impulse =
+					    (CurrentHit.ImpactNormal * -MeleeKnockbackImpulse) + (FVector::UpVector * MeleeLaunchImpulse);
 
 					// pass the damage event to the actor
 					Damageable->ApplyDamage(MeleeDamage, this, CurrentHit.ImpactPoint, Impulse);
-
 				}
 			}
 		}
@@ -193,13 +204,18 @@ void ACombatEnemy::CheckChargedAttack()
 	// jump to either the loop or attack section of the montage depending on whether we hit the loop target
 	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 	{
-		AnimInstance->Montage_JumpToSection(CurrentChargeLoop >= TargetChargeLoops ? ChargeAttackSection : ChargeLoopSection, ChargedAttackMontage);
+		AnimInstance->Montage_JumpToSection(CurrentChargeLoop >= TargetChargeLoops ? ChargeAttackSection
+		                                                                           : ChargeLoopSection,
+		                                    ChargedAttackMontage);
 	}
 }
 
-void ACombatEnemy::ApplyDamage(float Damage, AActor* DamageCauser, const FVector& DamageLocation, const FVector& DamageImpulse)
+void ACombatEnemy::ApplyDamage(float Damage,
+                               AActor* DamageCauser,
+                               const FVector& DamageLocation,
+                               const FVector& DamageImpulse)
 {
-	
+
 	// pass the damage event to the actor
 	FDamageEvent DamageEvent;
 	const float ActualDamage = TakeDamage(Damage, DamageEvent, nullptr, DamageCauser);
@@ -272,7 +288,10 @@ void ACombatEnemy::RemoveFromLevel()
 	Destroy();
 }
 
-float ACombatEnemy::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+float ACombatEnemy::TakeDamage(float Damage,
+                               struct FDamageEvent const& DamageEvent,
+                               AController* EventInstigator,
+                               AActor* DamageCauser)
 {
 	// only process damage if the character is still alive
 	if (CurrentHP <= 0.0f)

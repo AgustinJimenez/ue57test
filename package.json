@@ -1,0 +1,34 @@
+{
+  "name": "backrooms-ue57",
+  "version": "1.0.0",
+  "description": "Unreal Engine 5.7 BackRooms procedural generator with service-oriented architecture",
+  "scripts": {
+    "compile": "\"/Users/Shared/Epic Games/UE_5.7/Engine/Build/BatchFiles/Mac/Build.sh\" BackRooomsUE57Editor Mac Development -Project=\"$(pwd)/BackRooomsUE57.uproject\"",
+    "compile-dotnet": "dotnet \"/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll\" BackRooomsUE57Editor Mac Development -Project=\"$(pwd)/BackRooomsUE57.uproject\" -WaitMutex",
+    "build": "npm run compile",
+    "clean": "rm -rf Binaries/ Intermediate/ && npm run compile",
+    "generate-project": "dotnet \"/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll\" -projectfiles -project=\"$(pwd)/BackRooomsUE57.uproject\" -game -rocket -progress",
+    "open": "open BackRooomsUE57.uproject",
+    "open-xcode": "open \"BackRooomsUE57 (Mac).xcworkspace\"",
+    "format": "clang-format -i Source/**/*.{cpp,h} --style=file",
+    "lint": "clang-tidy Source/**/*.cpp -- -I\"Source/BackRooomsUE57\"",
+    "test": "echo \"No tests configured yet\" && exit 0"
+  },
+  "keywords": [
+    "unreal-engine",
+    "backrooms",
+    "procedural-generation",
+    "cpp",
+    "game-development"
+  ],
+  "author": "BackRooms Development Team",
+  "license": "MIT",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "."
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

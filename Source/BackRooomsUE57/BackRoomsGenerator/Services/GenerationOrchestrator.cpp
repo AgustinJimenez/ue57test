@@ -91,6 +91,16 @@ int32 FGenerationOrchestrator::ExecuteProceduralGeneration(const FRoomData& Init
 				break;
 			}
 			int32 RandomRoomIndex = AvailableRooms[FMath::RandRange(0, AvailableRooms.Num() - 1)];
+
+			// Fix: Add bounds checking for OutGeneratedRooms access
+			if (RandomRoomIndex < 0 || RandomRoomIndex >= OutGeneratedRooms.Num())
+			{
+				LogDebug(FString::Printf(TEXT("ERROR: Invalid room index %d (array size: %d)"),
+				                         RandomRoomIndex,
+				                         OutGeneratedRooms.Num()),
+				         Config);
+				continue;
+			}
 			FRoomData& SourceRoom = OutGeneratedRooms[RandomRoomIndex];
 
 			TArray<int32> AvailableConnections = SourceRoom.GetAvailableConnections();
@@ -126,7 +136,17 @@ int32 FGenerationOrchestrator::ExecuteProceduralGeneration(const FRoomData& Init
 			                             Random))
 			{
 				bRoomPlaced = true;
-				AvailableRooms.Add(RoomIndex); // New room might have connections
+				// Fix: Ensure RoomIndex is valid before adding to AvailableRooms
+				if (RoomIndex >= 0 && RoomIndex < Config.TotalRooms)
+				{
+					AvailableRooms.Add(RoomIndex); // New room might have connections
+				}
+				else
+				{
+					LogDebug(FString::Printf(TEXT("ERROR: Invalid RoomIndex %d when adding to AvailableRooms"),
+					                         RoomIndex),
+					         Config);
+				}
 
 				// Connect the rooms (calculate opposite wall index for second room)
 				int32 OppositeConnectionIndex = GetOppositeWallIndex(ConnectionIndex);
@@ -398,7 +418,15 @@ void FGenerationOrchestrator::CleanupAvailableRooms(TArray<int32>& AvailableRoom
 	for (int32 i = AvailableRooms.Num() - 1; i >= 0; i--)
 	{
 		int32 RoomIndex = AvailableRooms[i];
-		if (RoomIndex < GeneratedRooms.Num() && GeneratedRooms[RoomIndex].GetAvailableConnections().Num() == 0)
+		// Fix: Add bounds checking for both arrays
+		if (RoomIndex < 0 || RoomIndex >= GeneratedRooms.Num())
+		{
+			// Remove invalid room indices
+			AvailableRooms.RemoveAt(i);
+			continue;
+		}
+
+		if (GeneratedRooms[RoomIndex].GetAvailableConnections().Num() == 0)
 		{
 			AvailableRooms.RemoveAt(i);
 		}
