@@ -1,5 +1,6 @@
 #include "StandardRoom.h"
 #include "Engine/Engine.h"
+#include "Engine/StaticMeshActor.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/Material.h"
 #include "Materials/MaterialExpressionConstant3Vector.h"
@@ -354,8 +355,8 @@ void UStandardRoom::GenerateFloor(TArray<FVector>& Vertices, TArray<int32>& Tria
 		}
 	}
 	
-	UE_LOG(LogTemp, Warning, TEXT("StandardRoom: Generated step pattern floor with %d steps (%dx%d grid)"), 
-		StepsX * StepsY, StepsX, StepsY);
+	// UE_LOG(LogTemp, Warning, TEXT("StandardRoom: Generated step pattern floor with %d steps (%dx%d grid)"), 
+	//	StepsX * StepsY, StepsX, StepsY);
 }
 
 
@@ -589,10 +590,10 @@ void UStandardRoom::CreateRoomUsingIndividualActors(AActor* Owner)
 
 	// === CREATE 4 WALLS (only with doors where DoorConfigs specify) ===
 	
-	UE_LOG(LogTemp, Warning, TEXT("WALL GENERATION DETAILS:"));
-	UE_LOG(LogTemp, Warning, TEXT("   Room Center: %s"), *RoomCenter.ToString());
-	UE_LOG(LogTemp, Warning, TEXT("   Wall Colors: South=Green, North=Red, East=Blue, West=Yellow"));
-	UE_LOG(LogTemp, Warning, TEXT("   DoorConfigs: %d door configurations"), DoorConfigs.Num());
+	// UE_LOG(LogTemp, Warning, TEXT("WALL GENERATION DETAILS:"));
+	// UE_LOG(LogTemp, Warning, TEXT("   Room Center: %s"), *RoomCenter.ToString());
+	// UE_LOG(LogTemp, Warning, TEXT("   Wall Colors: South=Green, North=Red, East=Blue, West=Yellow"));
+	// UE_LOG(LogTemp, Warning, TEXT("   DoorConfigs: %d door configurations"), DoorConfigs.Num());
 
 	// Helper to find DoorConfig for a specific wall side
 	auto FindDoorConfig = [&](EWallSide WallSide) -> FDoorConfig* {
@@ -613,29 +614,29 @@ void UStandardRoom::CreateRoomUsingIndividualActors(AActor* Owner)
 	FVector SouthWallPos = RoomCenter + FVector(0, -HalfLength, 0);
 	FRotator SouthWallRot = FRotator(0, 0, 0);
 	FDoorConfig* SouthDoor = FindDoorConfig(EWallSide::South);
-	UE_LOG(LogTemp, Warning, TEXT("   [S] SOUTH WALL: Pos=%s, Rot=%s, Color=Green"), *SouthWallPos.ToString(), *SouthWallRot.ToString());
+	// UE_LOG(LogTemp, Warning, TEXT("   [S] SOUTH WALL: Pos=%s, Rot=%s, Color=Green"), *SouthWallPos.ToString(), *SouthWallRot.ToString());
 	if (ShouldRemoveWall(SouthDoor)) {
-		UE_LOG(LogTemp, Warning, TEXT("      [X] REMOVED (Width=%.1fm triggers removal)"), SouthDoor->Width);
+		// UE_LOG(LogTemp, Warning, TEXT("      [X] REMOVED (Width=%.1fm triggers removal)"), SouthDoor->Width);
 	} else if (SouthDoor) {
 		FWallHoleConfig SouthDoorConfig = FWallHoleConfig::CreateCustom(
 			SouthDoor->Width, SouthDoor->Height, Width * 0.5f, Height * 0.5f, TEXT("SouthDoor"));
 		UWallUnit::CreateWallWithHole(World, SouthWallPos, SouthWallRot, 
 			Width, Height, WallThickness, SouthWallColor, SouthDoorConfig);
-		UE_LOG(LogTemp, Warning, TEXT("      [O] WITH HOLE (%.1fx%.1fm doorway)"), SouthDoor->Width, SouthDoor->Height);
+		// UE_LOG(LogTemp, Warning, TEXT("      [O] WITH HOLE (%.1fx%.1fm doorway)"), SouthDoor->Width, SouthDoor->Height);
 	} else {
 		AActor* SouthWallActor = UWallUnit::CreateSolidWallActor(World, SouthWallPos, SouthWallRot, 
 			Width, Height, WallThickness, SouthWallColor);
 		WallActors.Add(EWallSide::South, SouthWallActor);
-		UE_LOG(LogTemp, Warning, TEXT("      [#] SOLID (no connections)"));
+		// UE_LOG(LogTemp, Warning, TEXT("      [#] SOLID (no connections)"));
 	}
 
 	// North Wall (RED) - check if it should have a doorway
 	FVector NorthWallPos = RoomCenter + FVector(0, HalfLength, 0);
 	FRotator NorthWallRot = FRotator(0, 180, 0);
 	FDoorConfig* NorthDoor = FindDoorConfig(EWallSide::North);
-	UE_LOG(LogTemp, Warning, TEXT("   [N] NORTH WALL: Pos=%s, Rot=%s, Color=Red"), *NorthWallPos.ToString(), *NorthWallRot.ToString());
+	// UE_LOG(LogTemp, Warning, TEXT("   [N] NORTH WALL: Pos=%s, Rot=%s, Color=Red"), *NorthWallPos.ToString(), *NorthWallRot.ToString());
 	if (ShouldRemoveWall(NorthDoor)) {
-		UE_LOG(LogTemp, Warning, TEXT("      [X] REMOVED (Width=%.1fm triggers removal)"), NorthDoor->Width);
+		// UE_LOG(LogTemp, Warning, TEXT("      [X] REMOVED (Width=%.1fm triggers removal)"), NorthDoor->Width);
 	} else if (NorthDoor) {
 		float HoleCenterX = Width * 0.5f;
 		float HoleCenterY = Height * 0.5f;
@@ -643,52 +644,52 @@ void UStandardRoom::CreateRoomUsingIndividualActors(AActor* Owner)
 			NorthDoor->Width, NorthDoor->Height, HoleCenterX, HoleCenterY, TEXT("NorthDoor"));
 		AActor* WallActor = UWallUnit::CreateWallWithHole(World, NorthWallPos, NorthWallRot, 
 			Width, Height, WallThickness, NorthWallColor, NorthDoorConfig);
-		UE_LOG(LogTemp, Warning, TEXT("      [O] WITH HOLE (%.1fx%.1fm doorway)"), NorthDoor->Width, NorthDoor->Height);
+		// UE_LOG(LogTemp, Warning, TEXT("      [O] WITH HOLE (%.1fx%.1fm doorway)"), NorthDoor->Width, NorthDoor->Height);
 	} else {
 		AActor* NorthWallActor = UWallUnit::CreateSolidWallActor(World, NorthWallPos, NorthWallRot, 
 			Width, Height, WallThickness, NorthWallColor);
 		WallActors.Add(EWallSide::North, NorthWallActor);
-		UE_LOG(LogTemp, Warning, TEXT("      [#] SOLID (no connections)"));
+		// UE_LOG(LogTemp, Warning, TEXT("      [#] SOLID (no connections)"));
 	}
 
 	// East Wall (BLUE) - check if it should have a doorway
 	FVector EastWallPos = RoomCenter + FVector(HalfWidth, 0, 0);
 	FRotator EastWallRot = FRotator(0, 90, 0);
 	FDoorConfig* EastDoor = FindDoorConfig(EWallSide::East);
-	UE_LOG(LogTemp, Warning, TEXT("   [E] EAST WALL: Pos=%s, Rot=%s, Color=Blue"), *EastWallPos.ToString(), *EastWallRot.ToString());
+	// UE_LOG(LogTemp, Warning, TEXT("   [E] EAST WALL: Pos=%s, Rot=%s, Color=Blue"), *EastWallPos.ToString(), *EastWallRot.ToString());
 	if (ShouldRemoveWall(EastDoor)) {
-		UE_LOG(LogTemp, Warning, TEXT("      [X] REMOVED (Width=%.1fm triggers removal)"), EastDoor->Width);
+		// UE_LOG(LogTemp, Warning, TEXT("      [X] REMOVED (Width=%.1fm triggers removal)"), EastDoor->Width);
 	} else if (EastDoor) {
 		FWallHoleConfig EastDoorConfig = FWallHoleConfig::CreateCustom(
 			EastDoor->Width, EastDoor->Height, Length * 0.5f, Height * 0.5f, TEXT("EastDoor"));
 		AActor* WallActor = UWallUnit::CreateWallWithHole(World, EastWallPos, EastWallRot, 
 			Length, Height, WallThickness, EastWallColor, EastDoorConfig);
-		UE_LOG(LogTemp, Warning, TEXT("      [O] WITH HOLE (%.1fx%.1fm doorway)"), EastDoor->Width, EastDoor->Height);
+		// UE_LOG(LogTemp, Warning, TEXT("      [O] WITH HOLE (%.1fx%.1fm doorway)"), EastDoor->Width, EastDoor->Height);
 	} else {
 		AActor* EastWallActor = UWallUnit::CreateSolidWallActor(World, EastWallPos, EastWallRot, 
 			Length, Height, WallThickness, EastWallColor);
 		WallActors.Add(EWallSide::East, EastWallActor);
-		UE_LOG(LogTemp, Warning, TEXT("      [#] SOLID (no connections)"));
+		// UE_LOG(LogTemp, Warning, TEXT("      [#] SOLID (no connections)"));
 	}
 
 	// West Wall (YELLOW) - check if it should have a doorway
 	FVector WestWallPos = RoomCenter + FVector(-HalfWidth, 0, 0);
 	FRotator WestWallRot = FRotator(0, 270, 0);
 	FDoorConfig* WestDoor = FindDoorConfig(EWallSide::West);
-	UE_LOG(LogTemp, Warning, TEXT("   [W] WEST WALL: Pos=%s, Rot=%s, Color=Yellow"), *WestWallPos.ToString(), *WestWallRot.ToString());
+	// UE_LOG(LogTemp, Warning, TEXT("   [W] WEST WALL: Pos=%s, Rot=%s, Color=Yellow"), *WestWallPos.ToString(), *WestWallRot.ToString());
 	if (ShouldRemoveWall(WestDoor)) {
-		UE_LOG(LogTemp, Warning, TEXT("      [X] REMOVED (Width=%.1fm triggers removal)"), WestDoor->Width);
+		// UE_LOG(LogTemp, Warning, TEXT("      [X] REMOVED (Width=%.1fm triggers removal)"), WestDoor->Width);
 	} else if (WestDoor) {
 		FWallHoleConfig WestDoorConfig = FWallHoleConfig::CreateCustom(
 			WestDoor->Width, WestDoor->Height, Length * 0.5f, Height * 0.5f, TEXT("WestDoor"));
 		AActor* WallActor = UWallUnit::CreateWallWithHole(World, WestWallPos, WestWallRot, 
 			Length, Height, WallThickness, WestWallColor, WestDoorConfig);
-		UE_LOG(LogTemp, Warning, TEXT("      [O] WITH HOLE (%.1fx%.1fm doorway)"), WestDoor->Width, WestDoor->Height);
+		// UE_LOG(LogTemp, Warning, TEXT("      [O] WITH HOLE (%.1fx%.1fm doorway)"), WestDoor->Width, WestDoor->Height);
 	} else {
 		AActor* WestWallActor = UWallUnit::CreateSolidWallActor(World, WestWallPos, WestWallRot, 
 			Length, Height, WallThickness, WestWallColor);
 		WallActors.Add(EWallSide::West, WestWallActor);
-		UE_LOG(LogTemp, Warning, TEXT("      [#] SOLID (no connections)"));
+		// UE_LOG(LogTemp, Warning, TEXT("      [#] SOLID (no connections)"));
 	}
 
 	// === CREATE FLOOR AND CEILING (same as test mode) ===
@@ -698,7 +699,7 @@ void UStandardRoom::CreateRoomUsingIndividualActors(AActor* Owner)
 	FRotator FloorRot = FRotator(0, 0, 90);
 	UWallUnit::CreateSolidWallActor(World, FloorPos, FloorRot, 
 		Width, Length, WallThickness, FloorColor);
-	UE_LOG(LogTemp, Warning, TEXT("   [F] FLOOR: Pos=%s, Rot=%s, Color=Gray"), *FloorPos.ToString(), *FloorRot.ToString());
+	// UE_LOG(LogTemp, Warning, TEXT("   [F] FLOOR: Pos=%s, Rot=%s, Color=Gray"), *FloorPos.ToString(), *FloorRot.ToString());
 
 	// Ceiling (positioned above room center) - COMMENTED OUT for better visibility
 	/*
@@ -708,9 +709,9 @@ void UStandardRoom::CreateRoomUsingIndividualActors(AActor* Owner)
 		Width, Length, WallThickness, CeilingColor);
 	UE_LOG(LogTemp, Warning, TEXT("   ⬜ CEILING: Pos=%s, Rot=%s, Color=LightGray"), *CeilingPos.ToString(), *CeilingRot.ToString());
 	*/
-	UE_LOG(LogTemp, Warning, TEXT("   [X] CEILING: Disabled for better visibility"));
+	// UE_LOG(LogTemp, Warning, TEXT("   [X] CEILING: Disabled for better visibility"));
 	
-	UE_LOG(LogTemp, Warning, TEXT("*** ROOM CREATION COMPLETED: 4 walls + floor created successfully ***"));
+	// UE_LOG(LogTemp, Warning, TEXT("*** ROOM CREATION COMPLETED: 4 walls + floor created successfully ***"));
 }
 
 
@@ -743,25 +744,25 @@ bool UStandardRoom::CreateFromRoomData(const FRoomData& RoomData, AActor* Owner,
 	RoomCategory = RoomData.Category;
 	Elevation = RoomData.Elevation;
 	
-	// DETAILED ROOM PROPERTIES LOG
-	UE_LOG(LogTemp, Warning, TEXT(""));
-	UE_LOG(LogTemp, Warning, TEXT("========== CREATING ROOM %d =========="), RoomData.RoomIndex);
-	UE_LOG(LogTemp, Warning, TEXT("DIMENSIONS: %.1fm x %.1fm x %.1fm (W x L x H)"), Width, Length, Height);
-	UE_LOG(LogTemp, Warning, TEXT("POSITION: %s (X=%.1f, Y=%.1f, Z=%.1f)"), *Position.ToString(), Position.X, Position.Y, Position.Z);
-	UE_LOG(LogTemp, Warning, TEXT("CATEGORY: %s"), *UEnum::GetValueAsString(RoomCategory));
-	UE_LOG(LogTemp, Warning, TEXT("ELEVATION: %.2fm above ground"), Elevation);
-	if (RoomData.StairDirection != EWallSide::None)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("STAIR DIRECTION: %s"), *UEnum::GetValueAsString(RoomData.StairDirection));
-	}
-	UE_LOG(LogTemp, Warning, TEXT("CONNECTIONS: %d wall connections available"), RoomData.Connections.Num());
-	UE_LOG(LogTemp, Warning, TEXT("WALL THICKNESS: %.1fcm"), WallThickness * 100.0f);
-	
-	// Calculate room area and volume for reference
-	float RoomArea = Width * Length;
-	float RoomVolume = Width * Length * Height;
-	UE_LOG(LogTemp, Warning, TEXT("STATS: Area=%.1fm2, Volume=%.1fm3"), RoomArea, RoomVolume);
-	UE_LOG(LogTemp, Warning, TEXT("========================================"));
+	// DETAILED ROOM PROPERTIES LOG - COMMENTED OUT TO REDUCE VERBOSE OUTPUT
+	// UE_LOG(LogTemp, Warning, TEXT(""));
+	// UE_LOG(LogTemp, Warning, TEXT("========== CREATING ROOM %d =========="), RoomData.RoomIndex);
+	// UE_LOG(LogTemp, Warning, TEXT("DIMENSIONS: %.1fm x %.1fm x %.1fm (W x L x H)"), Width, Length, Height);
+	// UE_LOG(LogTemp, Warning, TEXT("POSITION: %s (X=%.1f, Y=%.1f, Z=%.1f)"), *Position.ToString(), Position.X, Position.Y, Position.Z);
+	// UE_LOG(LogTemp, Warning, TEXT("CATEGORY: %s"), *UEnum::GetValueAsString(RoomCategory));
+	// UE_LOG(LogTemp, Warning, TEXT("ELEVATION: %.2fm above ground"), Elevation);
+	// if (RoomData.StairDirection != EWallSide::None)
+	// {
+	//		UE_LOG(LogTemp, Warning, TEXT("STAIR DIRECTION: %s"), *UEnum::GetValueAsString(RoomData.StairDirection));
+	// }
+	// UE_LOG(LogTemp, Warning, TEXT("CONNECTIONS: %d wall connections available"), RoomData.Connections.Num());
+	// UE_LOG(LogTemp, Warning, TEXT("WALL THICKNESS: %.1fcm"), WallThickness * 100.0f);
+	// 
+	// // Calculate room area and volume for reference
+	// float RoomArea = Width * Length;
+	// float RoomVolume = Width * Length * Height;
+	// UE_LOG(LogTemp, Warning, TEXT("STATS: Area=%.1fm2, Volume=%.1fm3"), RoomArea, RoomVolume);
+	// UE_LOG(LogTemp, Warning, TEXT("========================================"));
 	
 	// Create the room using individual actors approach
 	this->CreateRoomUsingIndividualActors(Owner);
@@ -771,8 +772,14 @@ bool UStandardRoom::CreateFromRoomData(const FRoomData& RoomData, AActor* Owner,
 	// Create room number identifier automatically if enabled
 	CreateRoomNumberText(RoomData.RoomIndex, bShowNumbers);
 	
-	UE_LOG(LogTemp, Warning, TEXT("========== ROOM %d COMPLETED =========="), RoomData.RoomIndex);
-	UE_LOG(LogTemp, Warning, TEXT(""));
+	// Create debug sphere for hallways (purple sphere above center)
+	if (RoomCategory == ERoomCategory::Hallway)
+	{
+		CreateHallwayDebugSphere(Owner);
+	}
+	
+	// UE_LOG(LogTemp, Warning, TEXT("========== ROOM %d COMPLETED =========="), RoomData.RoomIndex);
+	// UE_LOG(LogTemp, Warning, TEXT(""));
 	return true;
 }
 
@@ -860,8 +867,8 @@ void UStandardRoom::AddHoleToWall(AActor* Owner, EWallSide WallSide, const FDoor
 	if (DoorConfig.Width >= 99.0f)
 	{
 		// Complete wall removal - don't create any wall
-		UE_LOG(LogTemp, Warning, TEXT("🔧 AddHoleToWall: Complete %s wall removal (Width=%.1f)"), 
-			*UEnum::GetValueAsString(WallSide), DoorConfig.Width);
+		// UE_LOG(LogTemp, Warning, TEXT("🔧 AddHoleToWall: Complete %s wall removal (Width=%.1f)"), 
+		//	*UEnum::GetValueAsString(WallSide), DoorConfig.Width);
 		// NewWallActor remains nullptr (no wall)
 	}
 	else
@@ -875,8 +882,8 @@ void UStandardRoom::AddHoleToWall(AActor* Owner, EWallSide WallSide, const FDoor
 		{
 			// Center the hole for proper alignment between rooms
 			HolePositionX = WallWidth * 0.5f;
-			UE_LOG(LogTemp, Warning, TEXT("🎯 CENTERED hole (OffsetFromCenter=0): %.1fm wall, hole centered at %.1fm"), 
-				WallWidth, HolePositionX);
+			// UE_LOG(LogTemp, Warning, TEXT("🎯 CENTERED hole (OffsetFromCenter=0): %.1fm wall, hole centered at %.1fm"), 
+			//	WallWidth, HolePositionX);
 		}
 		else if (WallWidth >= 5.0f)
 		{
@@ -887,8 +894,8 @@ void UStandardRoom::AddHoleToWall(AActor* Owner, EWallSide WallSide, const FDoor
 			{
 				FRandomStream Random(FDateTime::Now().GetTicks() + (int32)WallSide); // Unique seed per wall
 				HolePositionX = Random.FRandRange(MinPosition, MaxPosition);
-				UE_LOG(LogTemp, Warning, TEXT("🎲 Random doorway position: %.1fm wall, hole at %.1fm (range %.1f-%.1f)"), 
-					WallWidth, HolePositionX, MinPosition, MaxPosition);
+				// UE_LOG(LogTemp, Warning, TEXT("🎲 Random doorway position: %.1fm wall, hole at %.1fm (range %.1f-%.1f)"), 
+				//	WallWidth, HolePositionX, MinPosition, MaxPosition);
 			}
 			else
 			{
@@ -898,7 +905,7 @@ void UStandardRoom::AddHoleToWall(AActor* Owner, EWallSide WallSide, const FDoor
 		else
 		{
 			HolePositionX = WallWidth * 0.5f; // Center position for smaller walls
-			UE_LOG(LogTemp, Warning, TEXT("🎯 Centered doorway: %.1fm wall, hole at center %.1fm"), WallWidth, HolePositionX);
+			// UE_LOG(LogTemp, Warning, TEXT("🎯 Centered doorway: %.1fm wall, hole at center %.1fm"), WallWidth, HolePositionX);
 		}
 
 		// Create hole config from DoorConfig (same as TestGenerator approach)
@@ -921,13 +928,13 @@ void UStandardRoom::AddHoleToWall(AActor* Owner, EWallSide WallSide, const FDoor
 	if (NewWallActor)
 	{
 		WallActors.Add(WallSide, NewWallActor);
-		UE_LOG(LogTemp, Warning, TEXT("✅ AddHoleToWall: Successfully replaced %s wall with hole"), 
-			*UEnum::GetValueAsString(WallSide));
+		// UE_LOG(LogTemp, Warning, TEXT("✅ AddHoleToWall: Successfully replaced %s wall with hole"), 
+		//	*UEnum::GetValueAsString(WallSide));
 	}
 	else if (DoorConfig.Width >= 99.0f)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("✅ AddHoleToWall: Successfully removed %s wall completely"), 
-			*UEnum::GetValueAsString(WallSide));
+		// UE_LOG(LogTemp, Warning, TEXT("✅ AddHoleToWall: Successfully removed %s wall completely"), 
+		//	*UEnum::GetValueAsString(WallSide));
 	}
 	else
 	{
@@ -949,7 +956,7 @@ void UStandardRoom::AddHoleToWallWithThickness(AActor* Owner, EWallSide WallSide
 	// ASYMMETRIC CONNECTION: If TargetRoom is provided, create asymmetric connection
 	if (TargetRoom)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ASYMMETRIC CONNECTION: Creating connection between two rooms"));
+		// UE_LOG(LogTemp, Warning, TEXT("ASYMMETRIC CONNECTION: Creating connection between two rooms"));
 		
 		// Calculate room areas to determine which is smaller/larger
 		float ThisRoomArea = Width * Length;
@@ -966,7 +973,7 @@ void UStandardRoom::AddHoleToWallWithThickness(AActor* Owner, EWallSide WallSide
 		EWallSide SmallerRoomWall = bThisIsSmaller ? WallSide : GetOppositeWall(WallSide);
 		EWallSide LargerRoomWall = bThisIsLarger ? WallSide : GetOppositeWall(WallSide);
 		
-		UE_LOG(LogTemp, Warning, TEXT("ASYMMETRIC: Room areas calculated"));
+		// UE_LOG(LogTemp, Warning, TEXT("ASYMMETRIC: Room areas calculated"));
 		
 		// Step 1: Remove smaller room's wall completely
 		FDoorConfig RemovalConfig = DoorConfig;
@@ -1187,11 +1194,70 @@ void UStandardRoom::CreateRoomNumberText(int32 RoomIndex, bool bShowNumbers)
 		return;
 	}
 	
-	// Configure the billboard text
-	FString RoomNumberText = FString::Printf(TEXT("%d"), RoomIndex);
+	// Configure the billboard text (display as 1-based numbering for user-friendly labels)
+	FString RoomNumberText = FString::Printf(TEXT("%d"), RoomIndex + 1);
 	BillboardActor->SetText(RoomNumberText);
 	BillboardActor->SetTextSize(200.0f); // Big size for visibility
 	BillboardActor->SetTextColor(FColor::White); // White for contrast
 	
 	UE_LOG(LogTemp, Log, TEXT("✅ Created billboard room number label: %s at %s (updates every 2s)"), *RoomNumberText, *NumberPosition.ToString());
+}
+
+void UStandardRoom::CreateHallwayDebugSphere(AActor* Owner)
+{
+	// Create a purple debug sphere above the center of hallways for visual identification
+	UWorld* World = Owner ? Owner->GetWorld() : GWorld;
+	if (!World)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("❌ No valid world for hallway debug sphere"));
+		return;
+	}
+	
+	// Calculate hallway center position
+	FVector RoomCenter = Position + FVector(Width * 100.0f * 0.5f, Length * 100.0f * 0.5f, Height * 100.0f * 0.5f);
+	FVector SpherePosition = RoomCenter + FVector(0, 0, 300.0f); // 3m above hallway center
+	
+	// Create static mesh actor for the sphere
+	AStaticMeshActor* SphereActor = World->SpawnActor<AStaticMeshActor>(SpherePosition, FRotator::ZeroRotator);
+	if (!IsValid(SphereActor))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("❌ Failed to create hallway debug sphere actor"));
+		return;
+	}
+	
+	// Get default sphere mesh
+	UStaticMesh* SphereMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Sphere"));
+	if (!SphereMesh)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("❌ Failed to load sphere mesh for hallway debug"));
+		SphereActor->Destroy();
+		return;
+	}
+	
+	// Configure the sphere mesh
+	UStaticMeshComponent* MeshComponent = SphereActor->GetStaticMeshComponent();
+	if (MeshComponent)
+	{
+		MeshComponent->SetStaticMesh(SphereMesh);
+		MeshComponent->SetWorldScale3D(FVector(2.0f)); // 2x scale for visibility
+		
+		// Create purple material
+		UMaterialInterface* PurpleMaterial = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial"));
+		if (PurpleMaterial)
+		{
+			// Create dynamic material instance to set purple color
+			UMaterialInstanceDynamic* DynamicMaterial = UMaterialInstanceDynamic::Create(PurpleMaterial, MeshComponent);
+			if (DynamicMaterial)
+			{
+				DynamicMaterial->SetVectorParameterValue("Color", FLinearColor(1.0f, 0.0f, 1.0f, 1.0f)); // Purple
+				MeshComponent->SetMaterial(0, DynamicMaterial);
+			}
+		}
+		
+		// Make it glow/bright
+		MeshComponent->SetCastShadow(false);
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("🟣 HALLWAY DEBUG: Created purple sphere at %s (%.1fx%.1fm hallway)"), 
+		*SpherePosition.ToString(), Width, Length);
 }

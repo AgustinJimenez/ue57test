@@ -19,13 +19,13 @@ struct FBackroomGenerationConfig
     int32 TotalRooms = 100;
     
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
-    float RoomRatio = 0.30f; // 30% rooms
+    float RoomRatio = 0.4f; // 40% standard rooms
     
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
-    float HallwayRatio = 0.30f; // 30% hallways
+    float HallwayRatio = 0.6f; // 60% hallways  
     
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
-    float StairRatio = 0.40f; // 40% stairs
+    float StairRatio = 0.0f; // 0% stairs (removed per user request)
 
     // === SAFETY LIMITS ===
     
@@ -70,7 +70,7 @@ struct FBackroomGenerationConfig
     float MinRoomSize = 2.0f;
     
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Room Sizes", meta = (ClampMin = "2.0", ClampMax = "20.0", Units = "m"))
-    float MaxRoomSize = 8.0f;
+    float MaxRoomSize = 15.0f;
     
     // Hallways (rectangular)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Room Sizes", meta = (ClampMin = "1.0", ClampMax = "5.0", Units = "m"))
@@ -80,10 +80,35 @@ struct FBackroomGenerationConfig
     float MaxHallwayWidth = 5.0f;
     
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Room Sizes", meta = (ClampMin = "3.0", ClampMax = "20.0", Units = "m"))
-    float MinHallwayLength = 4.0f;
+    float MinHallwayLength = 12.0f;
     
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Room Sizes", meta = (ClampMin = "5.0", ClampMax = "50.0", Units = "m"))
-    float MaxHallwayLength = 12.0f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Room Sizes", meta = (ClampMin = "5.0", ClampMax = "150.0", Units = "m"))
+    float MaxHallwayLength = 150.0f;
+    
+    // === HALLWAY LENGTH DISTRIBUTION ===
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hallway Distribution", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float ShortHallwayRatio = 0.2f; // 20% short hallways (12-20m)
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hallway Distribution", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float MediumHallwayRatio = 0.3f; // 30% medium hallways (20-35m)  
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hallway Distribution", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float LongHallwayRatio = 0.5f; // 50% long hallways (35-150m)
+    
+    // Length thresholds for hallway categories
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hallway Distribution", meta = (ClampMin = "15.0", ClampMax = "25.0", Units = "m"))
+    float MediumHallwayThreshold = 20.0f;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hallway Distribution", meta = (ClampMin = "25.0", ClampMax = "50.0", Units = "m"))
+    float LongHallwayThreshold = 35.0f;
+
+    // Stairs (elevation changes)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Room Sizes", meta = (ClampMin = "1.0", ClampMax = "10.0", Units = "m"))
+    float MinStairHeight = 2.0f;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Room Sizes", meta = (ClampMin = "2.0", ClampMax = "20.0", Units = "m"))
+    float MaxStairHeight = 6.0f;
 
     // === LOGGING SETTINGS ===
     

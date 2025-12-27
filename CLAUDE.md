@@ -16,10 +16,18 @@ The project uses a **sophisticated procedural room generation system** that crea
 # Build the project (requires Unreal Engine 5.7)
 # Open BackRooomsUE57.uproject in Unreal Editor to build automatically
 # OR use UnrealBuildTool directly:
+
+# PREFERRED METHOD (Claude Code development style) - Use dotnet on Mac:
+dotnet "/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll" BackRooomsUE57Editor Mac Development -Project="/Users/agus/repo/BackRooomsUE57/BackRooomsUE57.uproject" -WaitMutex
+
+# Alternative method (direct executable):
 Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.exe BackRooomsUE57Editor Mac Development -Project="BackRooomsUE57.uproject" -WaitMutex -FromMsBuild
 
 # Generate project files for development
-Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.exe -projectfiles -project="BackRooomsUE57.uproject" -game -rocket -progress
+dotnet "/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll" -projectfiles -project="/Users/agus/repo/BackRooomsUE57/BackRooomsUE57.uproject" -game -rocket -progress
+
+# Clean build (when encountering HotReload issues)
+rm -rf Binaries/ Intermediate/ && dotnet "/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll" BackRooomsUE57Editor Mac Development -Project="/Users/agus/repo/BackRooomsUE57/BackRooomsUE57.uproject" -WaitMutex
 
 # Open the project directly (Claude Code capability)
 open "BackRooomsUE57.uproject"

@@ -20,8 +20,8 @@ void UHoleGenerator::GenerateWallWithHole(TArray<FVector>& Vertices, TArray<int3
 	float MaxAllowableSize = FMath::Min(WallWidthCm, WallHeightCm) * 0.95f; // Max 95% of smallest wall dimension
 	if (BaseSizeCm > MaxAllowableSize)
 	{
-		UE_LOG(LogBackRoomGenerator, Warning, TEXT("Irregular hole size %.0fcm too large for wall %.0fx%.0fcm, clamping to %.0fcm"), 
-			BaseSizeCm, WallWidthCm, WallHeightCm, MaxAllowableSize);
+		// UE_LOG(LogBackRoomGenerator, Warning, TEXT("Irregular hole size %.0fcm too large for wall %.0fx%.0fcm, clamping to %.0fcm"), 
+		//	BaseSizeCm, WallWidthCm, WallHeightCm, MaxAllowableSize);
 		BaseSizeCm = MaxAllowableSize;
 	}
 	

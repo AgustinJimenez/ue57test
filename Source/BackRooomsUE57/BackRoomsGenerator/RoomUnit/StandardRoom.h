@@ -56,6 +56,7 @@ private:
 	// Utility methods
 	EWallSide GetOppositeWall(EWallSide WallSide) const;
 	void CreateRoomNumberText(int32 RoomIndex, bool bShowNumbers = true);
+	void CreateHallwayDebugSphere(AActor* Owner);
 	void GenerateSimpleWall(EWallSide WallSide, float WidthCm, float LengthCm, float HeightCm,
 		TArray<FVector>& Vertices, TArray<int32>& Triangles, 
 		TArray<FVector>& Normals, TArray<FVector2D>& UVs);

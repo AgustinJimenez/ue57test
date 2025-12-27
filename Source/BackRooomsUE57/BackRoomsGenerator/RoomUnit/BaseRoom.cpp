@@ -20,13 +20,13 @@ UBaseRoom::UBaseRoom()
 
 void UBaseRoom::CreateRoom(AActor* Owner)
 {
-	UE_LOG(LogTemp, Warning, TEXT("=== BASEROOM: Creating room at %s (%.1fx%.1fx%.1fm) ==="), 
-		*Position.ToString(), Width, Length, Height);
+	// UE_LOG(LogTemp, Warning, TEXT("=== BASEROOM: Creating room at %s (%.1fx%.1fx%.1fm) ==="), 
+	//	*Position.ToString(), Width, Length, Height);
 
 	// Use the individual actor approach for walls
 	CreateRoomUsingIndividualActors(Owner);
 
-	UE_LOG(LogTemp, Warning, TEXT("BaseRoom: Successfully created room using individual actors"));
+	// UE_LOG(LogTemp, Warning, TEXT("BaseRoom: Successfully created room using individual actors"));
 }
 
 void UBaseRoom::SetMaterial(UMaterialInterface* Material)

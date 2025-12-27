@@ -136,7 +136,7 @@ void UWallUnit::GenerateThickWallWithMultipleDoors(TArray<FVector>& Vertices, TA
 	if (bAllRectangular)
 	{
 		// All rectangular - convert to irregular squares and process individually
-		UE_LOG(LogBackRoomGenerator, Warning, TEXT("Converting %d rectangular doors to irregular squares"), Doors.Num());
+		// UE_LOG(LogBackRoomGenerator, Warning, TEXT("Converting %d rectangular doors to irregular squares"), Doors.Num());
 		
 		for (const FDoorConfig* Door : Doors)
 		{
@@ -158,7 +158,7 @@ void UWallUnit::GenerateThickWallWithMultipleDoors(TArray<FVector>& Vertices, TA
 	else if (bAllIrregular)
 	{
 		// All irregular - process individually but accumulate geometry (FIXED)
-		UE_LOG(LogBackRoomGenerator, Warning, TEXT("Processing %d irregular doors individually (accumulating geometry)"), Doors.Num());
+		// UE_LOG(LogBackRoomGenerator, Warning, TEXT("Processing %d irregular doors individually (accumulating geometry)"), Doors.Num());
 		
 		for (const FDoorConfig* Door : Doors)
 		{
@@ -171,7 +171,7 @@ void UWallUnit::GenerateThickWallWithMultipleDoors(TArray<FVector>& Vertices, TA
 	else
 	{
 		// Mixed hole types - process each door individually
-		UE_LOG(LogBackRoomGenerator, Warning, TEXT("Processing %d mixed-type doors individually (overlaps not handled)"), Doors.Num());
+		// UE_LOG(LogBackRoomGenerator, Warning, TEXT("Processing %d mixed-type doors individually (overlaps not handled)"), Doors.Num());
 		
 		for (const FDoorConfig* Door : Doors)
 		{
@@ -545,8 +545,8 @@ AActor* UWallUnit::CreateCompleteWallActor(UWorld* World, const FVector& Positio
 		return nullptr;
 	}
 
-	UE_LOG(LogBackRoomGenerator, Warning, TEXT("🔧 CreateCompleteWallActor: Creating wall at %s, %.1fx%.1fm hole at pos %.2f,%.2f"), 
-		*Position.ToString(), DoorWidth, DoorHeight, HorizontalPosition, VerticalPosition);
+	// UE_LOG(LogBackRoomGenerator, Warning, TEXT("🔧 CreateCompleteWallActor: Creating wall at %s, %.1fx%.1fm hole at pos %.2f,%.2f"), 
+	//	*Position.ToString(), DoorWidth, DoorHeight, HorizontalPosition, VerticalPosition);
 
 	// Generate complete wall mesh data
 	TArray<FVector> WallVertices;
@@ -558,8 +558,8 @@ AActor* UWallUnit::CreateCompleteWallActor(UWorld* World, const FVector& Positio
 		Position, Rotation, WallWidth, WallHeight, WallThickness, World,
 		DoorWidth, DoorHeight, HorizontalPosition, VerticalPosition);
 	
-	UE_LOG(LogBackRoomGenerator, Warning, TEXT("🔧 CreateWallMeshWithDoorway: Generated %d vertices, %d triangles"), 
-		WallVertices.Num(), WallTriangles.Num());
+	// UE_LOG(LogBackRoomGenerator, Warning, TEXT("🔧 CreateWallMeshWithDoorway: Generated %d vertices, %d triangles"), 
+	//	WallVertices.Num(), WallTriangles.Num());
 	
 	// Create actor and mesh component
 	AActor* WallActor = World->SpawnActor<AActor>();
@@ -739,8 +739,8 @@ void UWallUnit::GenerateWallWithCustomSquareHole(TArray<FVector>& Vertices, TArr
 	// DEBUG: Log hole positioning calculation
 	if (World)
 	{
-		UE_LOG(LogBackRoomGenerator, Warning, TEXT("HOLE DEBUG: HoleCenterX=%.2f->%.1fcm, HoleLeft=%.1fcm, HoleRight=%.1fcm"), 
-			HoleCenterX, HoleCenterXCm, HoleLeft, HoleRight);
+		// UE_LOG(LogBackRoomGenerator, Warning, TEXT("HOLE DEBUG: HoleCenterX=%.2f->%.1fcm, HoleLeft=%.1fcm, HoleRight=%.1fcm"), 
+		//	HoleCenterX, HoleCenterXCm, HoleLeft, HoleRight);
 	}
 	
 	// Clamp to wall bounds
@@ -1226,7 +1226,7 @@ AActor* UWallUnit::CreateWallWithMultipleHoles(UWorld* World, const FVector& Pos
 	{
 		// Multiple holes - for now, create the first hole only
 		// TODO: Implement true multiple holes by combining geometry
-		UE_LOG(LogBackRoomGenerator, Warning, TEXT("Multiple holes requested (%d), creating first hole only. Full multiple holes implementation pending."), HoleConfigs.Num());
+		// UE_LOG(LogBackRoomGenerator, Warning, TEXT("Multiple holes requested (%d), creating first hole only. Full multiple holes implementation pending."), HoleConfigs.Num());
 		return CreateWallWithHole(World, Position, Rotation, WallWidth, WallHeight, WallThickness, Color, HoleConfigs[0]);
 	}
 }

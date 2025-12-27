@@ -5,6 +5,12 @@
 #include "Materials/MaterialInterface.h"
 #include "Types.h"
 #include "GenerationConfig.h"
+#include "Services/ICollisionDetectionService.h"
+#include "Services/CollisionDetectionService.h"
+#include "Services/IRoomConnectionManager.h"
+#include "Services/RoomConnectionManager.h"
+#include "Services/IGenerationOrchestrator.h"
+#include "Services/GenerationOrchestrator.h"
 #include "Main.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogBackRoomGenerator, Log, All);
@@ -49,11 +55,17 @@ private:
 	UPROPERTY()
 	TArray<FRoomData> GeneratedRooms;
 
+	// Services (Dependency Injection)
+	TUniquePtr<ICollisionDetectionService> CollisionService;
+	TUniquePtr<IRoomConnectionManager> ConnectionManager;
+	TUniquePtr<IGenerationOrchestrator> GenerationOrchestrator;
+
 	void DebugLog(const FString& Message) const;
 	void CreateIdentifierSpheres(UStandardRoom* Room);
 	void CreateRoomNumberIdentifier(const FRoomData& Room);
 	void CreateConnectionInRoomWall(FRoomData& Room, EWallSide WallSide, EConnectionType ConnectionType, float ConnectionWidth);
 	void CreateConnectionInRoomWallWithThickness(FRoomData& Room, EWallSide WallSide, EConnectionType ConnectionType, float ConnectionWidth, float WallThickness, float SmallerWallSize = -1.0f);
+	void PrintRoomSizeSummary();
 	
 	// Helper for WallGenerator testing (moved to TestGenerator)
 	
@@ -65,11 +77,5 @@ private:
 	FRoomData CreateInitialRoom(const FVector& CharacterLocation);
 	FRoomData GenerateRandomRoom(ERoomCategory Category, int32 RoomIndex);
 	FRoomData GenerateRandomRoom(ERoomCategory Category, int32 RoomIndex, const FRoomData& SourceRoom, int32 ConnectionIndex);
-	bool TryPlaceRoom(const FRoomData& SourceRoom, int32 ConnectionIndex, FRoomData& NewRoom);
-	bool CheckRoomCollision(const FRoomData& TestRoom) const;
-	bool CheckRoomCollisionExcluding(const FRoomData& TestRoom, int32 ExcludeRoomIndex) const;
-	void CreateRoomConnections(FRoomData& Room);
-	FVector CalculateConnectionPosition(const FRoomData& SourceRoom, int32 ConnectionIndex, const FRoomData& NewRoom);
-	void ConnectRooms(FRoomData& Room1, int32 Connection1Index, FRoomData& Room2, int32 Connection2Index);
 	void RegenerateSpecificWall(FRoomData& Room, EWallSide WallSide, const FDoorConfig& DoorConfig);
 };
