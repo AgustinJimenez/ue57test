@@ -136,31 +136,52 @@ int32 FGenerationOrchestrator::ExecuteProceduralGeneration(const FRoomData& Init
 			                             Random))
 			{
 				bRoomPlaced = true;
-				// Fix: Ensure RoomIndex is valid before adding to AvailableRooms
-				if (RoomIndex >= 0 && RoomIndex < Config.TotalRooms)
+				// Fix: Use actual array index instead of loop counter
+				int32 NewRoomArrayIndex = OutGeneratedRooms.Num() - 1; // Index of the room just added
+
+				// Add the new room to AvailableRooms using its actual array index
+				if (NewRoomArrayIndex >= 0 && NewRoomArrayIndex < OutGeneratedRooms.Num())
 				{
-					AvailableRooms.Add(RoomIndex); // New room might have connections
+					AvailableRooms.Add(NewRoomArrayIndex); // New room might have connections
 				}
 				else
 				{
-					LogDebug(FString::Printf(TEXT("ERROR: Invalid RoomIndex %d when adding to AvailableRooms"),
-					                         RoomIndex),
-					         Config);
+					LogDebug(
+					    FString::Printf(
+					        TEXT("ERROR: Invalid NewRoomArrayIndex %d when adding to AvailableRooms (array size: %d)"),
+					        NewRoomArrayIndex,
+					        OutGeneratedRooms.Num()),
+					    Config);
 				}
 
 				// Connect the rooms (calculate opposite wall index for second room)
 				int32 OppositeConnectionIndex = GetOppositeWallIndex(ConnectionIndex);
-				ConnectionManager->ConnectRooms(OutGeneratedRooms[RandomRoomIndex],
-				                                ConnectionIndex,
-				                                OutGeneratedRooms[RoomIndex],
-				                                OppositeConnectionIndex,
-				                                Config);
 
-				LogDebug(FString::Printf(TEXT("✅ ROOM %d PLACED: %s connected to room %d"),
-				                         RoomIndex,
-				                         *UEnum::GetValueAsString(OutGeneratedRooms[RoomIndex].Category),
-				                         RandomRoomIndex),
-				         Config);
+				// Fix: Use actual array indices for both rooms
+				if (RandomRoomIndex >= 0 && RandomRoomIndex < OutGeneratedRooms.Num() && NewRoomArrayIndex >= 0 &&
+				    NewRoomArrayIndex < OutGeneratedRooms.Num())
+				{
+					ConnectionManager->ConnectRooms(OutGeneratedRooms[RandomRoomIndex],
+					                                ConnectionIndex,
+					                                OutGeneratedRooms[NewRoomArrayIndex],
+					                                OppositeConnectionIndex,
+					                                Config);
+
+					LogDebug(FString::Printf(TEXT("✅ ROOM %d PLACED: %s connected to room %d"),
+					                         NewRoomArrayIndex,
+					                         *UEnum::GetValueAsString(OutGeneratedRooms[NewRoomArrayIndex].Category),
+					                         RandomRoomIndex),
+					         Config);
+				}
+				else
+				{
+					LogDebug(FString::Printf(TEXT("ERROR: Invalid room indices for connection - RandomRoom: %d, "
+					                              "NewRoom: %d (array size: %d)"),
+					                         RandomRoomIndex,
+					                         NewRoomArrayIndex,
+					                         OutGeneratedRooms.Num()),
+					         Config);
+				}
 			}
 			else
 			{

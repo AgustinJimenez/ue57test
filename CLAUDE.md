@@ -12,26 +12,49 @@ The project uses a **sophisticated procedural room generation system** that crea
 
 ## Build Commands
 
+The project now includes an NPM-based build system for convenient development. Use these commands:
+
+### **🚀 NPM Build Scripts (Recommended)**
+
 ```bash
-# Build the project (requires Unreal Engine 5.7)
-# Open BackRooomsUE57.uproject in Unreal Editor to build automatically
-# OR use UnrealBuildTool directly:
+# Main build commands
+npm run compile          # Build using official Build.sh wrapper (recommended)
+npm run compile-dotnet   # Build using direct dotnet method (faster)
+npm run build           # Alias for npm run compile
 
-# PREFERRED METHOD (Claude Code development style) - Use dotnet on Mac:
+# Utility commands
+npm run clean           # Clean build directories and rebuild
+npm run generate-project # Generate Xcode project files
+npm run open            # Open project in Unreal Editor
+npm run open-xcode      # Open Xcode workspace
+
+# Code quality
+npm run format          # Format code with clang-format
+npm run lint            # Run clang-tidy static analysis (requires: brew install llvm)
+```
+
+### **🔧 Direct Build Methods (Legacy)**
+
+```bash
+# Official Build.sh method (what npm run compile uses)
+"/Users/Shared/Epic Games/UE_5.7/Engine/Build/BatchFiles/Mac/Build.sh" BackRooomsUE57Editor Mac Development -Project="$(pwd)/BackRooomsUE57.uproject"
+
+# Direct dotnet method (what npm run compile-dotnet uses)
 dotnet "/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll" BackRooomsUE57Editor Mac Development -Project="/Users/agus/repo/BackRooomsUE57/BackRooomsUE57.uproject" -WaitMutex
-
-# Alternative method (direct executable):
-Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.exe BackRooomsUE57Editor Mac Development -Project="BackRooomsUE57.uproject" -WaitMutex -FromMsBuild
 
 # Generate project files for development
 dotnet "/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll" -projectfiles -project="/Users/agus/repo/BackRooomsUE57/BackRooomsUE57.uproject" -game -rocket -progress
 
-# Clean build (when encountering HotReload issues)
-rm -rf Binaries/ Intermediate/ && dotnet "/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll" BackRooomsUE57Editor Mac Development -Project="/Users/agus/repo/BackRooomsUE57/BackRooomsUE57.uproject" -WaitMutex
-
-# Open the project directly (Claude Code capability)
-open "BackRooomsUE57.uproject"
+# Manual clean build (when encountering HotReload issues)
+rm -rf Binaries/ Intermediate/ && npm run compile
 ```
+
+### **⚡ Quick Start**
+
+For most development tasks, simply use:
+- `npm run compile` - Standard build
+- `npm run clean` - When you need a fresh build
+- `npm run open` - Launch the project
 
 ## Current Architecture (Latest Working System)
 
