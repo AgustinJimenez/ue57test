@@ -1,8 +1,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GenerationConfig.generated.h"
 #include "Types.h"
+#include "GenerationConfig.generated.h"
 
 /**
  * Configuration settings for backrooms generation
