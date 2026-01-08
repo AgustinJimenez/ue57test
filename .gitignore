@@ -42,12 +42,5 @@ Thumbs.db
 Plugins/*/Binaries/
 Plugins/*/Intermediate/
 
-# Large content files - exclude most but keep essential
-Content/**/*.uasset
-Content/**/*.umap
-!Content/ThirdPerson/Blueprints/BackRoomsGeneratorBP.uasset
-!Content/ThirdPerson/Lvl_ThirdPerson.umap
-Content/**/*.png
-Content/**/*.jpg
-Content/**/*.wav
-Content/**/*.fbx
+# Content files are now managed by Git LFS
+# Remove the exclusions to allow Git LFS to handle them
